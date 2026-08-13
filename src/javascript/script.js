@@ -1,27 +1,88 @@
-document.querySelectorAll('.kanban-card').forEach(card => {
-    card.addEventListener('dragstart', e => {
-        e.currentTarget.classList.add('dragging');
-    })
+// Seleciona todos os elementos com a classe '.kanban-card' e adiciona eventos a cada um deles
+document.querySelectorAll(".kanban-card").forEach((card) => {
+  // Evento disparado quando começa a arrastar um card
+  card.addEventListener("dragstart", (e) => {
+    // Adiciona a classe 'dragging' ao card que está sendo arrastado
+    e.currentTarget.classList.add("dragging");
+  });
 
-    card.addEventListener('dragend', e => {
-        e.currentTarget.classList.remove('dragging');
-    })
-})
+  // Evento disparado quando termina de arrastar o card
+  card.addEventListener("dragend", (e) => {
+    // Remove a classe 'dragging' quando o card é solto
+    e.currentTarget.classList.remove("dragging");
+  });
+});
 
-document.querySelectorAll('.kanban-cards').forEach(column => {
-    column.addEventListener('dragover', e => {
-        e.preventDefault();
-        e.currentTarget.classList.add('cards-hover');
-    })
+// Seleciona todos os elementos com a classe '.kanban-cards' (as colunas) e adiciona eventos a cada um deles
+document.querySelectorAll(".kanban-cards").forEach((column) => {
+  // Evento disparado quando um card arrastado passa sobre uma coluna (drag over)
+  column.addEventListener("dragover", (e) => {
+    // Previne o comportamento padrão para permitir o "drop" (soltar) do card
+    e.preventDefault();
+    // Adiciona a classe 'cards-hover'
+    e.currentTarget.classList.add("cards-hover");
+  });
 
-    column.addEventListener('dragleave', e => {
-        e.currentTarget.classList.remove('cards-hover');
-    })
+  // Evento disparado quando o card sai da área da coluna (quando o card é arrastado para fora)
+  column.addEventListener("dragleave", (e) => {
+    // Remove a classe 'cards-hover' quando o card deixa de estar sobre a coluna
+    e.currentTarget.classList.remove("cards-hover");
+  });
 
-    column.addEventListener('drop', e => {
-        e.currentTarget.classList.remove('cards-hover');
+  // Evento disparado quando o card é solto (drop) dentro da coluna
+  column.addEventListener("drop", (e) => {
+    // Remove a classe 'cards-hover', já que o card foi solto
+    e.currentTarget.classList.remove("cards-hover");
 
-        const dragCard = document.querySelector('.kanban-card.dragging');
-        e.currentTarget.appendChild(dragCard)
-    })
-})
+    // Seleciona o card que está sendo arrastado (que tem a classe 'dragging')
+    const dragCard = document.querySelector(".kanban-card.dragging");
+
+    // Anexa (move) o card arrastado para a coluna onde foi solto
+    e.currentTarget.appendChild(dragCard);
+  });
+});
+
+document.getElementById("addTaskBtn").addEventListener("click", () => {
+  const title = document.getElementById("taskTitle").value.trim();
+  const columnId = document.getElementById("taskColumn").value;
+
+  if (!title) {
+    alert("Digite o título da tarefa.");
+    return;
+  }
+
+  const card = document.createElement("div");
+  card.classList.add("kanban-card");
+  card.setAttribute("draggable", "true");
+  card.innerHTML = `
+      <div class="badge low">
+        <span> Nova tarefa </span>
+      </div>
+      <p class="card-title">${title}</p>
+      <div class="card-infos">
+        <div class="card-icons">
+          <p><i class="fa-regular fa-comment"></i> 0</p>
+          <p><i class="fa-solid fa-paperclip"></i> 0</p>
+        </div>
+        <div class="user">
+          <img src="src/images/image1.jpg" alt="Avatar" />
+        </div>
+      </div>
+    `;
+
+  // Torna o novo card arrastável
+  card.addEventListener("dragstart", (e) => {
+    e.currentTarget.classList.add("dragging");
+  });
+
+  card.addEventListener("dragend", (e) => {
+    e.currentTarget.classList.remove("dragging");
+  });
+
+  // Adiciona na coluna correta
+  const targetColumn = document.querySelector(`.kanban-column[data-id="${columnId}"] .kanban-cards`);
+  targetColumn.appendChild(card);
+
+  // Limpa o input
+  document.getElementById("taskTitle").value = "";
+});
